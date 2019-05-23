@@ -1,3 +1,6 @@
+const _ = require('lodash');
+const dateFns = require('date-fns');
+
 //times when the room is booked
 let mockAppointments = [
   //room 1 booked at 06/20/49972 @ 4:00pm (UTC). 1 hour booking.
@@ -26,17 +29,67 @@ let mockSchedules = [
 
 function findTimes(appointments,operatories,schedules){
   // console.log(appointments)
-  // console.log(operatories)
-  // console.log(schedules)
   let mockOutAllDentistsWTheirOperatories = genDentistsOperatoriesObj(operatories);
-  let allPossibleScheduleSlots = genAllScheduleSlots(appointments);
-  console.log(mockOutAllDentistsWTheirOperatories);
-  console.log(allPossibleScheduleSlots);
+  // console.log(mockOutAllDentistsWTheirOperatories);
+  let allPossibleScheduleSlots = genAllScheduleSlots(schedules,mockOutAllDentistsWTheirOperatories,operatories);
+  let allAppointments = genAllAppointmentSlots(appointments);
+  
+  // console.log(allPossibleScheduleSlots);
+  console.log(JSON.stringify(allPossibleScheduleSlots));
 
 }
 
-function genAllScheduleSlots(array){
-  
+function genAllAppointmentSlots(allAppointments){
+  console.log('allAppointments',allAppointments);
+}
+
+//outputs an object whose first set of keys is the date
+  //each date key has a provider number key whose val is an obj
+    //each provider number obj has a key corresponding to Operatory Number (whose val is an array)
+      //and each Operatory Number array has elements representing each possible 30 minute slot
+function genAllScheduleSlots(array,object,allOperatories){
+  let allPossibleSchedulesSlotsForAllDentists = {}
+  // console.log('array',array);
+
+  for ( let i = 0; i < array.length; i++ ) {
+    let dateAvailable = dateFns.format(
+      new Date(array[i].SchedDate),
+      'DD/MM/YYYY'
+    )
+    //mock out the object as necessary
+    if ( !allPossibleSchedulesSlotsForAllDentists.hasOwnProperty(dateAvailable) ){
+      allPossibleSchedulesSlotsForAllDentists[dateAvailable] = {}
+    }
+    
+    for ( let providerNumObj in object ) {
+      if ( !allPossibleSchedulesSlotsForAllDentists[dateAvailable].hasOwnProperty(providerNumObj) ) {
+        allPossibleSchedulesSlotsForAllDentists[dateAvailable][providerNumObj] = {};
+      }
+      
+      for ( let operatoryNumberArr in object[providerNumObj] ) {
+        if ( !allPossibleSchedulesSlotsForAllDentists[dateAvailable][providerNumObj].hasOwnProperty(operatoryNumberArr) ) {
+          allPossibleSchedulesSlotsForAllDentists[dateAvailable][providerNumObj][operatoryNumberArr] = [];
+        }
+      }
+    }
+
+    let startAvailability = array[i].StartTime/(3600*1000);
+    let stopAvailability = array[i].StopTime/(3600*1000);
+    let numberOfSlotsAvailable = (stopAvailability-startAvailability)*2;
+
+    for ( let j = 0; j < numberOfSlotsAvailable; j++ ) {
+      let hourShift = Math.floor(j*.5)
+      let minShift = (j % 2 === 0 ) ? '00' : '30';
+      let timeSlotIsAvailable = `${startAvailability+hourShift}:${minShift}`
+
+      //HACK -- how do I link operatories?
+      let correctOperatory = allOperatories[array[i].ScheduleNum-1].OperatoryNum
+
+      allPossibleSchedulesSlotsForAllDentists[dateAvailable][array[i].ProvNum][correctOperatory].push(timeSlotIsAvailable);
+    }
+  }
+
+  return allPossibleSchedulesSlotsForAllDentists;
 }
 
 //outputs an object whose first set of keys are the dentist's provider number

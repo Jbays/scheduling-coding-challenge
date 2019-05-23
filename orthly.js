@@ -3,15 +3,15 @@ const dateFns = require('date-fns');
 
 //times when the room is booked
 let mockAppointments = [
-  //room 1 booked at 06/20/49972 @ 4:00pm (UTC). 1 hour booking.
+  //room 1 booked at 1/1/2018 @ 4:00pm (UTC). 1 hour booking.
   { "AptNum": 1, "Op": 1, "Duration": 3600000, "AptDateTime": 1514811600000},
-  //room 2 booked at 06/20/49972 @ 4:00pm (UTC)
+  //room 2 booked at 1/1/2018 @ 4:00pm (UTC)
   { "AptNum": 2, "Op": 2, "Duration": 3600000, "AptDateTime": 1514811600000},
-  //room 1 booked at 08/01/49972 @ 8:00am (UTC)
+  //room 1 booked at 1/1/2018 @ 8:00am (UTC)
   { "AptNum": 3, "Op": 1, "Duration": 3600000, "AptDateTime": 1514815200000},
-  //room 2 booked at 08/01/49972 @ 8:00am (UTC)
+  //room 2 booked at 1/1/2018 @ 8:00am (UTC)
   { "AptNum": 4, "Op": 2, "Duration": 3600000, "AptDateTime": 1514815200000},
-  //room 2 booked at 09/12/49972 @ 12:00am (UTC). 30 minute booking
+  //room 2 booked at 1/1/2018 @ 12:00am (UTC). 30 minute booking
   { "AptNum": 5, "Op": 2, "Duration": 1800000, "AptDateTime": 1514818800000}
 ];
 
@@ -22,43 +22,65 @@ let mockOperatories = [
 ];
 
 let mockSchedules = [
-  //07/23/49971 @ 8:00am (UTC) til 12pm (UTC)
+  //31/12/2017 @ 8:00am (UTC) til 12pm (UTC)
   { "ScheduleNum": 1, "ProvNum": 1, "SchedDate": 1514782800000, "StartTime": 28800000, "StopTime": 43200000 },
   { "ScheduleNum": 2, "ProvNum": 2, "SchedDate": 1514782800000, "StartTime": 28800000, "StopTime": 43200000 }
 ];
 
 function findTimes(appointments,operatories,schedules){
-  // console.log(appointments)
   let mockOutAllDentistsWTheirOperatories = genDentistsOperatoriesObj(operatories);
-  // console.log(mockOutAllDentistsWTheirOperatories);
   let allPossibleScheduleSlots = genAllScheduleSlots(schedules,mockOutAllDentistsWTheirOperatories,operatories);
   let allAppointments = genAllAppointmentSlots(appointments,operatories);
   
-  // console.log(allPossibleScheduleSlots);
+  console.log(allAppointments);
   console.log(JSON.stringify(allPossibleScheduleSlots));
+
+  let output = filterOutAppointmentsFromAllPossibleSlots(allPossibleScheduleSlots,allAppointments);
+  
+
+  //last step is to use _.difference!
+    //_.difference([2, 1], [2, 3]);
+    // => [1]
+}
+
+function filterOutAppointmentsFromAllPossibleSlots(everyScheduleSlot,everyAppointment){
+  console.log(everyScheduleSlot)
+  console.log(everyAppointment)
 }
 
 function genAllAppointmentSlots(allAppointments,allOperatories){
   let allAppointmentsScheduled = {};
   
   for ( let i = 0; i < allAppointments.length; i++ ) {
-    let dateOfAppointment = dateFns.format(
+    let fullDateOfAppointment = dateFns.format(
       new Date(allAppointments[i].AptDateTime),
       'DD/MM/YYYY--HH:MM:ss'
     )
-    let numberOfThirtyMinSlots = (allAppointments[i].Duration/(3600*1000))*2
+    let dayMonthYearOfAppt = fullDateOfAppointment.split('--')[0];
+    let timeOfAppointment = fullDateOfAppointment.split('--')[1];
+    
+    //small step to clean up the times
+    let timeOfAppointmentArr = timeOfAppointment.split(':')
 
-    // console.log('allAppointments[i]',allAppointments[i]);
-    // console.log('dateOfAppointment',dateOfAppointment);
-    // console.log('numberOfThirtyMinSlots',numberOfThirtyMinSlots);
-
-    if ( !allAppointmentsScheduled.hasOwnProperty(dateOfAppointment) ){
-      allAppointmentsScheduled[dateOfAppointment] = {};
+    if ( timeOfAppointmentArr[1][1] === '1' ){
+      timeOfAppointment = `${timeOfAppointmentArr[0]}:00`
     }
 
-    console.log(allOperatories)
+    if ( !allAppointmentsScheduled.hasOwnProperty(dayMonthYearOfAppt) ){
+      allAppointmentsScheduled[dayMonthYearOfAppt] = {};
+    }
+    
+    let numberOfThirtyMinSlots = (allAppointments[i].Duration/(3600*1000))*2
+
     for ( let j = 0; j < numberOfThirtyMinSlots; j++ ) {
-      allAppointmentsScheduled[dateOfAppointment] = {}
+      if ( !allAppointmentsScheduled[dayMonthYearOfAppt].hasOwnProperty(allAppointments[i].Op) ){
+        allAppointmentsScheduled[dayMonthYearOfAppt][allAppointments[i].Op] = [];
+      }
+
+      let minShift = ( j % 2 === 0 ) ? '00' : '30';
+      let reservedTimeSlot = `${timeOfAppointment.split(':')[0]}:${minShift}`
+
+      allAppointmentsScheduled[dayMonthYearOfAppt][allAppointments[i].Op].push(reservedTimeSlot);
     }
     
   }
@@ -112,22 +134,18 @@ function genAllScheduleSlots(array,object,allOperatories){
     }
 
     //now do this for two more days of availability
+    //hack!
     for ( let j = 1; j < 3; j++ ) {
-      console.log('this is j',j);
-      console.log('array[i].SchedDate',array[i].SchedDate)
-      let newDate = `${j}/1/2019`;
+      let newDate = `${j}/1/2018`;
 
-      var result = dateFns.addDays(new Date(2014, 8, 1), 1)
-      console.log('result',result);
-      console.log('newDate',newDate);
+      if ( !allPossibleSchedulesSlotsForAllDentists.hasOwnProperty(newDate) ) {
+        allPossibleSchedulesSlotsForAllDentists[newDate] = {};
+      }
 
-      //if newDate is NOT present in allPossibleSlotsForAllDentists
-        //write it to the object 
-        //then make a copy of what's already present in the previous array
-        
-
+      if ( !allPossibleSchedulesSlotsForAllDentists[newDate].hasOwnProperty(array[i].ProvNum) ){
+        allPossibleSchedulesSlotsForAllDentists[newDate][array[i].ProvNum] = _.extend(allPossibleSchedulesSlotsForAllDentists[newDate][array[i].ProvNum], allPossibleSchedulesSlotsForAllDentists[dateAvailable][array[i].ProvNum])
+      }
     }
-
   }
 
   return allPossibleSchedulesSlotsForAllDentists;

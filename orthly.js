@@ -25,7 +25,38 @@ let mockSchedules = [
 ];
 
 function findTimes(appointments,operatories,schedules){
+  // console.log(appointments)
+  // console.log(operatories)
+  // console.log(schedules)
+  let mockOutAllDentistsWTheirOperatories = genDentistsOperatoriesObj(operatories);
+  let allPossibleScheduleSlots = genAllScheduleSlots(appointments);
+  console.log(mockOutAllDentistsWTheirOperatories);
+  console.log(allPossibleScheduleSlots);
 
+}
+
+function genAllScheduleSlots(array){
+  
+}
+
+//outputs an object whose first set of keys are the dentist's provider number
+  //each dentist's provider number has keys equal to their 
+function genDentistsOperatoriesObj(array){
+  let allDentistsWithEachOfTheirOperatories = {};
+  
+  for ( let i = 0; i < array.length; i++ ) {
+    //if ProvNum has no entry
+    if ( !allDentistsWithEachOfTheirOperatories.hasOwnProperty(array[i].ProvNum) ){
+      allDentistsWithEachOfTheirOperatories[array[i].ProvNum] = {};
+    } 
+
+    //if ProvNum has key corresponding to their assigned OperatoryNumber
+    if (!allDentistsWithEachOfTheirOperatories[array[i].ProvNum].hasOwnProperty(array[i].OperatoryNum) ){
+      allDentistsWithEachOfTheirOperatories[array[i].ProvNum][array[i].OperatoryNum] = [];
+    }
+  }
+
+  return allDentistsWithEachOfTheirOperatories
 }
 
 

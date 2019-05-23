@@ -32,15 +32,38 @@ function findTimes(appointments,operatories,schedules){
   let mockOutAllDentistsWTheirOperatories = genDentistsOperatoriesObj(operatories);
   // console.log(mockOutAllDentistsWTheirOperatories);
   let allPossibleScheduleSlots = genAllScheduleSlots(schedules,mockOutAllDentistsWTheirOperatories,operatories);
-  let allAppointments = genAllAppointmentSlots(appointments);
+  let allAppointments = genAllAppointmentSlots(appointments,operatories);
   
   // console.log(allPossibleScheduleSlots);
   console.log(JSON.stringify(allPossibleScheduleSlots));
-
 }
 
-function genAllAppointmentSlots(allAppointments){
-  console.log('allAppointments',allAppointments);
+function genAllAppointmentSlots(allAppointments,allOperatories){
+  let allAppointmentsScheduled = {};
+  
+  for ( let i = 0; i < allAppointments.length; i++ ) {
+    let dateOfAppointment = dateFns.format(
+      new Date(allAppointments[i].AptDateTime),
+      'DD/MM/YYYY--HH:MM:ss'
+    )
+    let numberOfThirtyMinSlots = (allAppointments[i].Duration/(3600*1000))*2
+
+    // console.log('allAppointments[i]',allAppointments[i]);
+    // console.log('dateOfAppointment',dateOfAppointment);
+    // console.log('numberOfThirtyMinSlots',numberOfThirtyMinSlots);
+
+    if ( !allAppointmentsScheduled.hasOwnProperty(dateOfAppointment) ){
+      allAppointmentsScheduled[dateOfAppointment] = {};
+    }
+
+    console.log(allOperatories)
+    for ( let j = 0; j < numberOfThirtyMinSlots; j++ ) {
+      allAppointmentsScheduled[dateOfAppointment] = {}
+    }
+    
+  }
+
+  return allAppointmentsScheduled
 }
 
 //outputs an object whose first set of keys is the date
@@ -87,6 +110,24 @@ function genAllScheduleSlots(array,object,allOperatories){
 
       allPossibleSchedulesSlotsForAllDentists[dateAvailable][array[i].ProvNum][correctOperatory].push(timeSlotIsAvailable);
     }
+
+    //now do this for two more days of availability
+    for ( let j = 1; j < 3; j++ ) {
+      console.log('this is j',j);
+      console.log('array[i].SchedDate',array[i].SchedDate)
+      let newDate = `${j}/1/2019`;
+
+      var result = dateFns.addDays(new Date(2014, 8, 1), 1)
+      console.log('result',result);
+      console.log('newDate',newDate);
+
+      //if newDate is NOT present in allPossibleSlotsForAllDentists
+        //write it to the object 
+        //then make a copy of what's already present in the previous array
+        
+
+    }
+
   }
 
   return allPossibleSchedulesSlotsForAllDentists;

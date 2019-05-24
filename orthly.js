@@ -133,6 +133,10 @@ function genAllScheduleSlots(array,object,allOperatories){
       allPossibleSchedulesSlotsForAllDentists[dateAvailable][array[i].ProvNum][correctOperatory].push(timeSlotIsAvailable);
     }
 
+    /*
+
+    For now I'll comment out this code
+
     //now do this for two more days of availability
     //hack!
     for ( let j = 1; j < 3; j++ ) {
@@ -146,6 +150,7 @@ function genAllScheduleSlots(array,object,allOperatories){
         allPossibleSchedulesSlotsForAllDentists[newDate][array[i].ProvNum] = _.extend(allPossibleSchedulesSlotsForAllDentists[newDate][array[i].ProvNum], allPossibleSchedulesSlotsForAllDentists[dateAvailable][array[i].ProvNum])
       }
     }
+    */
   }
 
   return allPossibleSchedulesSlotsForAllDentists;

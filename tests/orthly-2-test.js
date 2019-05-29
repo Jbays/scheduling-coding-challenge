@@ -1,5 +1,6 @@
 const expect = require('chai').expect;
-const { mockSchedules, mockOperatories, genSchedObject } = require('../orthly-2');
+const { mockAppointments, mockSchedules, mockOperatories, 
+        genSchedObject, genApptObject } = require('../orthly-2');
 
 describe('all functions to complete this coding assessment: \n',()=>{
   describe('genSchedObject',()=>{
@@ -37,14 +38,37 @@ describe('all functions to complete this coding assessment: \n',()=>{
       });
     })
   });
-  xdescribe('genSchedObjectSkeleton',()=>{
-    let providerNumbersFiledByDate
-    describe('should output an object whose',()=>{
-      it('root keys are date-string objects in DD/MM/YYYY format',()=>{
-        
-      })
-      it('children keys are provider numbers',()=>{
+  describe('genApptObject',()=>{
+    let providerAvailFiledByDate = genApptObject(mockAppointments, mockOperatories);
 
+    describe('should output an object whose',()=>{
+      let allDentistsAvailOnDate = providerAvailFiledByDate['01/01/2018'];
+      it('root keys are date-string objects in DD/MM/YYYY format',()=>{
+        expect(allDentistsAvailOnDate).to.exist;
+      })
+      it('children keys have provider numbers 1 and 2',()=>{
+        let allDentistsAvailable = Object.keys(allDentistsAvailOnDate);
+        expect(allDentistsAvailable.includes('1')).to.equal(true)
+        expect(allDentistsAvailable.includes('2')).to.equal(true)
+      })
+      let firstDentistOperatory = allDentistsAvailOnDate['1']['1'];
+      let secondDentistOperatory = allDentistsAvailOnDate['2']['2'];
+      it('grandchildren keys are operatories objects belonging to providers',()=>{
+        expect(typeof firstDentistOperatory).to.equal('object')
+        expect(typeof secondDentistOperatory).to.equal('object')
+      })
+      it('whose grandchildren properties are arrays containing specific values',()=>{
+        expect(Array.isArray(firstDentistOperatory)).to.equal(true);
+        expect(Array.isArray(secondDentistOperatory)).to.equal(true);
+        expect(firstDentistOperatory.includes('7:00')).to.equal(true);
+        expect(firstDentistOperatory.includes('7:30')).to.equal(true);
+        expect(firstDentistOperatory.includes('8:00')).to.equal(true);
+        expect(firstDentistOperatory.includes('8:30')).to.equal(true);
+        expect(secondDentistOperatory.includes('7:00')).to.equal(true);
+        expect(secondDentistOperatory.includes('7:30')).to.equal(true);
+        expect(secondDentistOperatory.includes('8:00')).to.equal(true);
+        expect(secondDentistOperatory.includes('8:30')).to.equal(true);
+        expect(secondDentistOperatory.includes('9:00')).to.equal(true);
       })
     })
   })

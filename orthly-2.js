@@ -41,14 +41,27 @@ function findTimes(appointments,operatories,schedules){
   let allAppointmentsObj = genApptObject(appointments,operatories);
 
   //small hack here to modify allSchedulesObj -- remove once the prompt is clarified
-  // let modifiedAllSchedObj = hackAllSchedObj(allSchedulesObj);
+  let modifiedAllSchedObj = hackAllSchedObj(allSchedulesObj);
 
   // let allAvailableTimeSlots = filterSchedAndApptObjs(allSchedulesObj,allAppointmentsObj);
   
-  console.log('allSchedulesObj',JSON.stringify(allSchedulesObj));
-  console.log('allAppointmentsObj',JSON.stringify(allAppointmentsObj));
+  // console.log('allSchedulesObj',JSON.stringify(allSchedulesObj));
+  // console.log('allAppointmentsObj',JSON.stringify(allAppointmentsObj));
+  // console.log('modifiedAllSchedObj',JSON.stringify(modifiedAllSchedObj));
 
-  return //unixifyRemainingTimeSlots(allAvailableTimeSlots)
+  return filterRemainingSlots(modifiedAllSchedObj,allAppointmentsObj);
+}
+
+/*
+  name: filterRemainingSlots
+  descr: returns all timeslots available for business
+  param: object containing all available timeslots in an array
+  param: object containing all anti-timeslots in an array
+  returns: array of unix timestamps
+*/
+
+function filterRemainingSlots(allPossibleSchedules,allAppointments){
+
 }
 
 /*
@@ -171,6 +184,23 @@ function genSchedObject(allDentistAvailability,allOperatoriesOperating){
   return everyTimeSlotForAllDentists
 }
 
+/*
+  name: hackAllSchedObj
+  descr: Will replace input's first key with '01/01/2019'
+  param: allAppointmentsObj (object)
+  returns: object (root keys are DD/MM/YYYY objects. child keys are provNum objects.
+    grandchildKeys are operatoryNum arrays w/elements representing UNAVAILABLE timeslots)
+*/
+
+function hackAllSchedObj(allDatesDentsOpsTimeslots){
+  let output = _.extend(allDatesDentsOpsTimeslots,{});
+
+  output["01/01/2018"] = output["31/12/2017"]
+  delete output["31/12/2017"];
+
+  return output;
+}
+
 console.log(findTimes(mockAppointments,mockOperatories,mockSchedules))
 
 //expected output is array 
@@ -185,6 +215,7 @@ console.log(findTimes(mockAppointments,mockOperatories,mockSchedules))
 
 module.exports = {
   genSchedObject,
+  genApptObject,
   findTimes,
   mockAppointments,
   mockOperatories,

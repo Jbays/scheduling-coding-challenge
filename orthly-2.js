@@ -214,6 +214,8 @@ console.log(findTimes(mockAppointments,mockOperatories,mockSchedules))
 //   1514824200000]
 
 module.exports = {
+  filterRemainingSlots,
+  hackAllSchedObj,
   genSchedObject,
   genApptObject,
   findTimes,

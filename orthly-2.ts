@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const __ = require('lodash');
 const dateFns = require('date-fns');
 
 //times when the room is booked
@@ -91,10 +91,10 @@ function filterRemainingSlots(allPossibleSchedules,allAppointments){
               let dayDentOpAppointment = allAppointments[ddMMYYYY][providerNum][operatoryNum];
 
               //filter out appointments from the available timeslots
-              let realLifeAvailableDentistSlots = _.difference(dayDentOpAvailability,dayDentOpAppointment)
+              let realLifeAvailableDentistSlots = __.difference(dayDentOpAvailability,dayDentOpAppointment)
               
-              availSlotsAsUnixTimeStamps = realLifeAvailableDentistSlots.map((elem)=>{
-                let ddMMYYYYArr = ddMMYYYY.split('/'); 
+              let availSlotsAsUnixTimeStamps = realLifeAvailableDentistSlots.map((elem: string)=>{
+                let ddMMYYYYArr: string[] = ddMMYYYY.split('/'); 
                 let elemArr = elem.split(':');
 
                 if ( elemArr[0].length === 1 ) {
@@ -250,7 +250,7 @@ function genSchedObject(allDentistAvailability,allOperatoriesOperating){
 */
 
 function hackAllSchedObj(allDatesDentsOpsTimeslots){
-  let output = _.extend(allDatesDentsOpsTimeslots,{});
+  let output = __.extend(allDatesDentsOpsTimeslots,{});
 
   output["01/01/2018"] = output["31/12/2017"]
   delete output["31/12/2017"];

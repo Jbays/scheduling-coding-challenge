@@ -43,8 +43,6 @@ function findTimes(appointments,operatories,schedules){
   //small hack here to modify allSchedulesObj -- remove once the prompt is clarified
   let modifiedAllSchedObj = hackAllSchedObj(allSchedulesObj);
 
-  // let allAvailableTimeSlots = filterSchedAndApptObjs(allSchedulesObj,allAppointmentsObj);
-  
   // console.log('allSchedulesObj',JSON.stringify(allSchedulesObj));
   // console.log('allAppointmentsObj',JSON.stringify(allAppointmentsObj));
   // console.log('modifiedAllSchedObj',JSON.stringify(modifiedAllSchedObj));
@@ -61,7 +59,62 @@ function findTimes(appointments,operatories,schedules){
 */
 
 function filterRemainingSlots(allPossibleSchedules,allAppointments){
+  //should be unix timestamps
+  let outputArr = [];
+  // console.log('JSON.stringify(allPossibleSchedules)',JSON.stringify(allPossibleSchedules),'\n')
+  
+  for ( let ddMMYYYY in allPossibleSchedules ) {
+    //if allPossibleSchedule's date is contained in allAppointment's dates
+    //if appointments exist on that day
+    if ( allAppointments.hasOwnProperty(ddMMYYYY) ) {
+      
+      for ( let providerNum in allPossibleSchedules[ddMMYYYY] ){
+        //if appointments exist on that day for THAT provider 
+        if ( allAppointments[ddMMYYYY].hasOwnProperty(providerNum) ) {
 
+          // console.log('allAppointments[ddMMYYYY][providerNum]',allAppointments[ddMMYYYY][providerNum]);
+          
+          for ( let operatoryNum in allPossibleSchedules[ddMMYYYY][providerNum] ){
+            // console.log('operatoryNum',operatoryNum)
+            
+            //if that provider at that operatory on that date has appointments
+            if ( allAppointments[ddMMYYYY][providerNum][operatoryNum].length > 0 ){
+              /*
+                31 May 2019 
+                Unless I am not converting the dates correctly, here is the scenario.
+
+                
+
+              */
+              
+              let dayDentOpAvailability = allPossibleSchedules[ddMMYYYY][providerNum][operatoryNum];
+              let dayDentOpAppointment = allAppointments[ddMMYYYY][providerNum][operatoryNum];
+
+              //filter out appointments from the available timeslots
+              let realLifeAvailableDentistSlots = _.difference(dayDentOpAvailability,dayDentOpAppointment)
+              
+              availSlotsAsUnixTimeStamps = realLifeAvailableDentistSlots.map((elem)=>{
+                let ddMMYYYYArr = ddMMYYYY.split('/'); 
+                let elemArr = elem.split(':');
+
+                if ( elemArr[0].length === 1 ) {
+                  elemArr[0] = `0${elemArr[0]}`;
+                }
+
+                let dateStr = `${ddMMYYYYArr[2]}-${ddMMYYYYArr[1]}-${ddMMYYYYArr[0]}T${elemArr[0]}:${elemArr[1]}:00`;
+                let convertedToObj = new Date(dateStr);
+
+                return convertedToObj.getTime();
+              });
+
+              outputArr.push(...availSlotsAsUnixTimeStamps);
+            }
+          }
+        }
+      }
+    }
+  }
+  return outputArr;
 }
 
 /*
@@ -114,6 +167,9 @@ function genApptObject(allAppointments,allOperatories){
         //calculate how many anti-timeSlots I need to make
         let numOfThirtyMinSlots = allAppointments[i].Duration/(3600*1000)*2
         
+        //NOTE: right here I should add the 30 min buffer to fulfill a part of the requirements:
+        //- The Operatory has no appointments in the 30 minutes following `t`
+
         //now make the anti-timeSlots
         for ( let k = 0; k < numOfThirtyMinSlots; k++ ) {
           let hourShift = Math.floor(k*.5);
@@ -160,6 +216,7 @@ function genSchedObject(allDentistAvailability,allOperatoriesOperating){
     let startAvailability = allDentistAvailability[i].StartTime/(3600*1000);
     let stopAvailability = allDentistAvailability[i].StopTime/(3600*1000);
     
+    //figure out how many timeslots are required
     let numberOfSlotsPossible = (stopAvailability-startAvailability)*2;
     
     for ( let j = 0; j < allOperatoriesOperating.length; j++ ) {
@@ -204,6 +261,7 @@ function hackAllSchedObj(allDatesDentsOpsTimeslots){
 console.log(findTimes(mockAppointments,mockOperatories,mockSchedules))
 
 //expected output is array 
+
 // 1 jan 2018 9am
 // [ 1514818800000,
 // 1 jan 2018 9:30am

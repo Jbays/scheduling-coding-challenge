@@ -22,7 +22,7 @@ describe('all functions to complete this coding assessment: \n',()=>{
       w/one another as originally intentioned.
   */
   let modified_For_Test_allDatesDentsOpsTimeslots = hackAllSchedObj(providerAvailFiledByDate);
-  let dentistSlotsOpenAsUnixTimestamps = filterRemainingSlots(modified_For_Test_allDatesDentsOpsTimeslots);
+  // let dentistSlotsOpenAsUnixTimestamps = filterRemainingSlots(modified_For_Test_allDatesDentsOpsTimeslots);
 
   describe('genSchedObject',()=>{
     let availability = allPossibleTimeSlots["31/12/2017"];

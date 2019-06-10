@@ -1,7 +1,7 @@
 const _ = require ('lodash');
 const expect = require('chai').expect;
 const { mockAppointments, mockSchedules, mockOperatories, 
-        hackAllSchedObj, genSchedObject, genApptObject, filterRemainingSlots } = require('../orthly-2');
+        hackAllSchedObj, genSchedObject, genApptObject, filterRemainingSlots } = require('../orthly-2.js');
 
 describe('all functions to complete this coding assessment: \n',()=>{
   let allPossibleTimeSlots = genSchedObject(mockSchedules,mockOperatories);

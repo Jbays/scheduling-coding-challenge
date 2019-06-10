@@ -1,6 +1,6 @@
 # How To Use:
 
-Clone down the repo.  Here is the [link](https://github.com/Jbays/scheduling-coding-challenge.git).
+Clone down the repo.
 
 `cd` into the coding challenge directory.  Then install the two required dependencies.
 
@@ -23,3 +23,7 @@ Should return the output:
   1514824200000,
   1514826000000,
   1514827800000 ]
+
+  ## To Run Tests
+
+  > npm run tests
